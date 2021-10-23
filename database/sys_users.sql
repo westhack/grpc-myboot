@@ -1,0 +1,3 @@
+
+INSERT INTO `sys_users` VALUES (1, '2021-10-23 12:00:44', '2021-10-23 12:00:48', NULL, 'admin', NULL, '13888888888', 'admin');
+INSERT INTO `sys_users` VALUES (2, '2021-10-23 12:00:44', '2021-10-23 12:00:44', NULL, 'admin2', NULL, '13888888889', 'admin2');

@@ -1,0 +1,56 @@
+version: '3.7'
+volumes:
+  grpc_myboot_redis_data:
+  grpc_myboot_mysql_data:
+networks:
+  grpc-myboot-network:
+    driver: bridge
+services:
+  mysql:
+    build:
+      context: ./docker/mysql
+    container_name: grpc-myboot-mysql
+    restart: on-failure
+    volumes:
+      - grpc_myboot_mysql_data:/var/lib/mysql
+      - ./docker/mysql/docker-entrypoint-initdb.d:/docker-entrypoint-initdb.d
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=root
+    ports:
+      - "3307:3306"
+    networks:
+      grpc-myboot-network:
+        aliases:
+          - mysql.grpc_myboot
+  redis:
+    container_name: grpc-myboot-redis
+    restart: on-failure
+    volumes:
+      - grpc_myboot_redis_data:/data:rw
+    image: redis:5.0.8
+    command: redis-server --appendonly yes
+    ports:
+      - "6380:6379"
+    networks:
+      grpc-myboot-network:
+        aliases:
+          - redis.grpc_myboot
+
+  grpc-myboot:
+    container_name: "grpc-myboot"
+    depends_on:
+      - redis
+      - mysql
+    volumes:
+      - ./docker/grpc-myboot/config.docker.yaml:/go/src/grpc-myboot/config.docker.yaml:rw
+    build:
+      context: .
+    restart: on-failure
+    ports:
+      - "50051:50051"
+    networks:
+      grpc-myboot-network:
+        aliases:
+          - go.grpc_myboot
